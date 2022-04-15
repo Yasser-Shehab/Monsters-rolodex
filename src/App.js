@@ -1,61 +1,97 @@
-import logo from "./logo.svg";
-import { Component } from "react";
-import "./App.css";
+import { useState, useEffect } from "react";
 import CardList from "./components/card-list/CardList";
 import SearchBox from "./components/search-box/SearchBox";
-class App extends Component {
-  constructor() {
-    super();
+import logo from "./logo.svg";
+import "./App.css";
 
-    this.state = {
-      monsters: [],
-      searchField: "",
-    };
-  }
+const App = () => {
+  const [searchField, setSearchField] = useState("");
+  const [monsters, setMonsters] = useState([]);
+  const [filteredMonsters, setFilteredMonsters] = useState(monsters);
 
-  componentDidMount() {
+  console.log("render");
+  useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((res) => res.json())
-      .then((users) =>
-        this.setState(() => {
-          return { monsters: users };
-        })
-      );
-  }
+      .then((monsters) => setMonsters(monsters));
+  }, []);
 
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLocaleUpperCase();
-    this.setState(() => {
-      return { searchField };
-    });
-  };
-
-  render() {
-    const { monsters, searchField } = this.state;
-    const { onSearchChange } = this;
-
-    const filteredMonsters = monsters.filter((monster) => {
+  useEffect(() => {
+    const newFilteredMonsters = monsters.filter((monster) => {
       return monster.name.toLocaleUpperCase().includes(searchField);
     });
-    return (
-      <div className="App">
-        <SearchBox
-          placeholder="search monsters"
-          onChangeHandler={onSearchChange}
-          className="search-box"
-        />
 
-        {filteredMonsters.map((monster) => {
-          return (
-            <div key={monster.id}>
-              <h1> {monster.name}</h1>
-            </div>
-          );
-        })}
-        <CardList monsters={filteredMonsters} />
-      </div>
-    );
-  }
-}
+    setFilteredMonsters(newFilteredMonsters);
+  }, [monsters, searchField]);
+
+  const onSearchChange = (event) => {
+    const searchFieldString = event.target.value.toLocaleUpperCase();
+    setSearchField(() => searchFieldString);
+  };
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Monsters Rolodex</h1>
+
+      <SearchBox
+        placeholder="Search Monsters"
+        onChangeHandler={onSearchChange}
+        className="search-box"
+      />
+      <CardList monsters={filteredMonsters} />
+    </div>
+  );
+};
+
+// class App extends Component {
+//   constructor() {
+//     super();
+
+//     this.state = {
+//       monsters: [],
+//       searchField: "",
+//     };
+//   }
+
+//   componentDidMount() {
+//     fetch("https://jsonplaceholder.typicode.com/users")
+//       .then((res) => res.json())
+//       .then((monsters) =>
+//         this.setState(() => {
+//           return { monsters };
+//         })
+//       );
+//   }
+
+//   onSearchChange = (event) => {
+//     const searchField = event.target.value.toLocaleUpperCase();
+//     this.setState(() => {
+//       return { searchField };
+//     });
+//   };
+
+//   render() {
+//     const { monsters, searchField } = this.state;
+//     const { onSearchChange } = this;
+
+//     const filteredMonsters = monsters.filter((monster) => {
+//       return monster.name.toLocaleUpperCase().includes(searchField);
+//     });
+//     console.log(filteredMonsters);
+//     return (
+//       <div className="App">
+//         <h1 className="app-title">Monsters Rolodex</h1>
+
+//         <SearchBox
+//           placeholder="search monsters"
+//           onChangeHandler={onSearchChange}
+//           className="search-box"
+//         />
+
+//         <CardList monsters={filteredMonsters} />
+//       </div>
+//     );
+//   }
+// }
 
 export default App;
